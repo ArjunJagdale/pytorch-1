@@ -76,7 +76,7 @@ struct IsVecMaskType<at::vec::VecMask<T, N>> : std::true_type {};
 
 template <typename T, uint64_t kChunkSize>
 struct CascadeSumHelper {
-  // A data struct to help cascade sum:
+  // A data struct to help cascade summation:
   std::vector<T> sum_stk{};
   uint64_t depth{0}; // depth of sum_stk.
   uint64_t num_chunks{0}; // number of chunks stored in sum_stk.
@@ -100,6 +100,8 @@ struct CascadeSumHelper {
 template <typename T, uint64_t kChunkSize = 0>
 void cascade_sum_combine(T& data, CascadeSumHelper<T, kChunkSize>* c) {
   c->sum_stk[0] = c->sum_stk[0] + data;
+  // Use cascade summation to improve numerical stability.
+  // https://en.wikipedia.org/wiki/Pairwise_summation
   if (c->depth > 0) {
     c->index++;
     if (c->index == kChunkSize) {
